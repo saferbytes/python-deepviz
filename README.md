@@ -48,7 +48,7 @@ accuracy = result['classification']['accuracy']
 print "STATUS: %s ACCURACY: %s" % (status, accuracy)
 ```
 
-To retrieve full scan report of a specific MD5
+To retrieve full scan report for a specific MD5
 
 ```python
 from deepviz import sandbox
