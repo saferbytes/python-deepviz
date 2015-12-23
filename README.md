@@ -74,7 +74,7 @@ result = sbx.sample_report(md5="MD5-hash", apikey="my-api-key", filters=["classi
 # "rules",
 # "classification",
 # "created_process",
-# "hook_usermode",
+# "hook_user_mode",
 # "strings",
 # "created_files",
 # "hash",
