@@ -16,3 +16,12 @@ from deepviz import sandbox
 sbx = sandbox.Sandbox()
 sbx.upload_sample(path="path\\to\\file.exe", apikey="my-api-key", rescan=False)
 ```
+
+To download a sample:
+
+```python
+from deepviz import sandbox
+
+sbx = sandbox.Sandbox()
+sbx.download_sample(hash="MD5-hash", apikey="my-api-key", path="output\\directory\\")
+```
