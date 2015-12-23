@@ -72,6 +72,5 @@ result = sbx.sample_report(md5="MD5-hash", apikey="my-api-key", filters=["classi
 # "info",
 # "code_injection"
 
-
 print result
 ```
