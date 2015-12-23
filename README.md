@@ -17,6 +17,15 @@ sbx = sandbox.Sandbox()
 sbx.upload_sample(path="path\\to\\file.exe", apikey="my-api-key", rescan=False)
 ```
 
+To upload a folder:
+
+```python
+from deepviz import sandbox
+
+sbx = sandbox.Sandbox()
+sbx.upload_folder(path="path\\to\\files", apikey="my-api-key", rescan=False)
+```
+
 To download a sample:
 
 ```python
