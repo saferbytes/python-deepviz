@@ -8,8 +8,8 @@ URL_DOWNLOAD_SAMPLE = "https://api.deepviz.com/sandbox/sample"
 
 
 class Sandbox(object):
-    def upload_sample(self, path=None, apikey=None, rescan=False):
-        if not path or not apikey:
+    def upload_sample(self, path=None, api_key=None):
+        if not path or not api_key:
             return "[ERROR] Invalid or missing parameters. Please try again!"
 
         if not os.path.isfile(path):
@@ -21,16 +21,11 @@ class Sandbox(object):
             return "[ERROR] Cannot open file. (%s)" % e
 
         try:
-            if rescan:
-                _rescan = "true"
-            else:
-                _rescan = "false"
-
             r = requests.post(
                     URL_UPLOAD_SAMPLE,
                     data=simplejson.dumps({
-                        "apikey": apikey,
-                        "rescan": _rescan
+                        "apikey": api_key,
+                        "rescan": "false"
                     }),
 
                     files={"file": file}
@@ -44,8 +39,8 @@ class Sandbox(object):
             data = simplejson.loads(r.content)
             return "[ERROR] Error while connecting to Deepviz. (%s)" % data['errmsg']
 
-    def upload_folder(self, path=None, apikey=None, rescan=False):
-        if not path or not apikey:
+    def upload_folder(self, path=None, api_key=None):
+        if not path or not api_key:
             return "[ERROR] Invalid or missing parameters. Please try again!"
 
         if not os.path.isdir(path):
@@ -54,11 +49,11 @@ class Sandbox(object):
         buf = os.listdir(path)
 
         for item in buf:
-            file = os.path.join(path, item)
-            print Sandbox.upload_sample(file, apikey, rescan)
+            _file = os.path.join(path, item)
+            print self.upload_sample(_file, api_key)
 
-    def download_sample(self, md5=None, path=None, apikey=None, rescan=False):
-        if not path or not apikey or not hash:
+    def download_sample(self, md5=None, path=None, api_key=None):
+        if not path or not api_key or not hash:
             return "[ERROR] Invalid or missing parameters. Please try again!"
 
         if not os.path.exists(path):
@@ -73,7 +68,7 @@ class Sandbox(object):
 
         body = simplejson.dumps(
                 {
-                    "apikey": apikey,
+                    "apikey": api_key,
                     "hash": md5
                 })
         try:
@@ -89,15 +84,15 @@ class Sandbox(object):
             data = simplejson.loads(r.content)
             return "[ERROR] Error while connecting to Deepviz. (%s)" % data['errmsg']
 
-    def sample_result(self, md5=None, apikey=None):
-        if not md5 or not apikey:
+    def sample_result(self, md5=None, ap_key=None):
+        if not md5 or not ap_key:
             return "[ERROR] Invalid or missing parameters. Please try again!"
 
         try:
             r = requests.post(
                     URL_DOWNLOAD_REPORT,
                     data=simplejson.dumps({
-                        "api_key": apikey,
+                        "api_key": ap_key,
                         "md5": md5,
                         "output_filters": ["classification"]
                     })
@@ -112,20 +107,20 @@ class Sandbox(object):
         else:
             return "[ERROR] (%s) Error while connecting to Deepviz. (%s)" % (r.status_code, data['errmsg'])
 
-    def sample_report(self, md5=None, apikey=None, filters=None):
-        if not md5 or not apikey:
+    def sample_report(self, md5=None, api_key=None, filters=None):
+        if not md5 or not api_key:
             return "[ERROR] Invalid or missing parameters. Please try again!"
 
         if not filters:
             body = simplejson.dumps(
                     {
-                        "api_key": apikey,
+                        "api_key": api_key,
                         "md5": md5
                     })
         else:
             body = simplejson.dumps(
                     {
-                        "api_key": apikey,
+                        "api_key": api_key,
                         "md5": md5,
                         "output_filters": filters
                     })
