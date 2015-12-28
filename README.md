@@ -4,7 +4,7 @@ python-deepviz is a wrapper for deepviz.com REST APIs
 # Usage
 
 To use Deepviz API sdk you will need an API key you can get by
-subscribing the service at https://account.deepviz.com/register/
+subscribing the service free at https://account.deepviz.com/register/
 
 # Sandbox SDK API
 
