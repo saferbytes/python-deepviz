@@ -137,6 +137,7 @@ behavioral rules
 
 ```python
 from deepviz import intel, sandbox
+API="0000000000"
 ThreatIntel = intel.Intel()
 ThreatSbx = sandbox.Sandbox()
 result_domains = ThreatIntel.domain_info(api_key=API, timestamp="7d")
@@ -156,7 +157,7 @@ for domain in domains.keys():
 ```
 result:
 
-```python
+```
 DOMAIN: avsystemcare.com ==> 8 samples [TAG: trojan.qhost, trojan.rbot, trojan.noupd]
 000dde6029443950c8553469887eef9e => [badIpUrlInStrings, suspiciousSectionName, highEntropy, invalidSizeOfCode, invalidPEChecksum, writeExeSections]
 2b0a56badf6992af7bbcdfbee7aded4f => [dropExe, antiAv, recentlyRegisteredDomainStrings, autorunRegistryKey, badIpUrlInStrings, runDroppedExe, dialer, sleep, antiDebugging, invalidSizeOfCode, loadImage, runExe, invalidPEChecksum, writeExeSections]
