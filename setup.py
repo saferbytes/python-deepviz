@@ -6,8 +6,8 @@ setuptools.setup(
         author='Saferbytes',
         author_email='info@saferbytes.it',
         url='https://www.deepviz.com/',
-        description='Deepviz API Client Library',
-        keywords="deepviz api sdk",
+        description='Deepviz Threat Intelligence API Client Library for python',
+        keywords="deepviz API SDK",
         license='MIT',
         packages=['deepviz'],
         install_requires=[
