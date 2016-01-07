@@ -181,6 +181,8 @@ class Sandbox:
             msg = "Error while connecting to Deepviz. (%s)" % e
             return ResultError(msg=msg)
 
+        data = simplejson.loads(r.content)
+
         if r.status_code == 200:
             msg = data['data']
             return ResultSuccess(msg=msg)
