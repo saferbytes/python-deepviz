@@ -2,10 +2,10 @@ import setuptools
 
 setuptools.setup(
         name='python-deepviz',
-        version='1.0.1',
+        version='1.0.2',
         author='Saferbytes',
         author_email='info@saferbytes.it',
-        url='https://www.deepviz.com/',
+        url="https://github.com/saferbytes/python-deepviz",
         description='Deepviz Threat Intelligence API Client Library for python',
         keywords="deepviz API SDK",
         license='MIT',
