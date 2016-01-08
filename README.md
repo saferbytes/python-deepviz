@@ -20,7 +20,7 @@ To upload a sample:
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-sbx.upload_sample(path="path\\to\\file.exe", apikey="my-api-key")
+sbx.upload_sample(path="path\\to\\file.exe", api_key="my-api-key")
 ```
 
 To upload a folder:
@@ -28,7 +28,7 @@ To upload a folder:
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-sbx.upload_folder(path="path\\to\\files", apikey="my-api-key")
+sbx.upload_folder(path="path\\to\\files", api_key="my-api-key")
 ```
 
 To download a sample:
@@ -36,7 +36,7 @@ To download a sample:
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-sbx.download_sample(hash="MD5-hash", apikey="my-api-key", path="output\\directory\\")
+sbx.download_sample(hash="MD5-hash", api_key="my-api-key", path="output\\directory\\")
 ```
 
 To retrieve scan result of a specific MD5
@@ -44,7 +44,7 @@ To retrieve scan result of a specific MD5
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-result = sbx.sample_result(md5="MD5-hash", apikey="my-api-key")
+result = sbx.sample_result(md5="MD5-hash", api_key="my-api-key")
 status = result['classification']['result']
 accuracy = result['classification']['accuracy']
 print "STATUS: %s ACCURACY: %s" % (status, accuracy)
@@ -55,7 +55,7 @@ To retrieve full scan report for a specific MD5
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-result = sbx.sample_report(md5="MD5-hash", apikey="my-api-key")
+result = sbx.sample_report(md5="MD5-hash", api_key="my-api-key")
 print result
 ```
 
@@ -64,7 +64,7 @@ To retrieve only specific parts of the report of a specific MD5 scan
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-result = sbx.sample_report(md5="MD5-hash", apikey="my-api-key", filters=["classification","rules"])
+result = sbx.sample_report(md5="MD5-hash", api_key="my-api-key", filters=["classification","rules"])
 # List of the optional filters - they can be combined together
 # "network_ip",
 # "network_ip_tcp",
