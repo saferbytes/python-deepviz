@@ -105,7 +105,7 @@ To retrieve newly registered domains in the last 7 days:
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.domain_info(api_key=API, timestamp="7d")
+result = ThreatIntel.domain_info(api_key=API, time_delta="7d")
 print result
 ```
 
@@ -140,7 +140,7 @@ from deepviz import intel, sandbox
 API="0000000000"
 ThreatIntel = intel.Intel()
 ThreatSbx = sandbox.Sandbox()
-result_domains = ThreatIntel.domain_info(api_key=API, timestamp="7d")
+result_domains = ThreatIntel.domain_info(api_key=API, time_delta="7d")
 domains = result_domains.msg
 for domain in domains.keys():
     result_listsamples = ThreatIntel.advanced_search(api_key=API, domain=[domain], classification="M")
