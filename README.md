@@ -125,7 +125,7 @@ To run advanced search based on parameters
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-ThreatIntel.advanced_search(api_key=API, domain="www.domain.tld", classification="M")
+ThreatIntel.advanced_search(api_key=API, domain=["justfacebook.net"], classification="M")
 print result
 ```
 
