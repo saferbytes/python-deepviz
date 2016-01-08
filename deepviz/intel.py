@@ -31,12 +31,12 @@ class ResultSuccess(Result):
 
 
 class Intel:
-    def ip_info(self, api_key=None, ip=None, timestamp=None, history=False):
-        if not ip and not timestamp and not api_key:
+    def ip_info(self, api_key=None, ip=None, time_delta=None, history=False):
+        if not ip and not time_delta and not api_key:
             msg = "Invalid or missing parameters. Please try again!"
             return ResultError(msg=msg)
 
-        if ip and timestamp:
+        if ip and time_delta:
             msg = "You must specify either a list of IPs or timestamp. Please try again!"
             return ResultError(msg=msg)
 
@@ -57,11 +57,11 @@ class Intel:
                         "history": _history
                     }
             )
-        elif timestamp:
+        elif time_delta:
             body = simplejson.dumps(
                     {
                         "api_key": api_key,
-                        "timestamp": timestamp,
+                        "time_delta": time_delta,
                         "history": _history
                     }
             )
@@ -81,12 +81,12 @@ class Intel:
             msg = "(%s) Error while connecting to Deepviz. (%s)" % (r.status_code, data['errmsg'])
             return ResultError(msg=msg)
 
-    def domain_info(self, api_key=None, domain=None, timestamp=None, history=False, filters=None):
-        if not domain and not timestamp and not api_key:
+    def domain_info(self, api_key=None, domain=None, time_delta=None, history=False, filters=None):
+        if not domain and not time_delta and not api_key:
             msg = "Invalid or missing parameters. Please try again!"
             return ResultError(msg=msg)
 
-        if domain and timestamp:
+        if domain and time_delta:
             msg = "You must specify either a list of domains or timestamp. Please try again!"
             return ResultError(msg=msg)
 
@@ -123,12 +123,12 @@ class Intel:
                         }
                 )
 
-        elif timestamp:
+        elif time_delta:
             if filters:
                 body = simplejson.dumps(
                         {
                             "api_key": api_key,
-                            "time_delta": timestamp,
+                            "time_delta": time_delta,
                             "history": _history,
                             "output_filters": filters
                         }
@@ -137,7 +137,7 @@ class Intel:
                 body = simplejson.dumps(
                         {
                             "api_key": api_key,
-                            "time_delta": timestamp,
+                            "time_delta": time_delta,
                             "history": _history
                         }
                 )
