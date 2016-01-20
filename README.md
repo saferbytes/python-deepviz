@@ -39,6 +39,7 @@ sbx = sandbox.Sandbox()
 sbx.download_sample(hash="MD5-hash", api_key="my-api-key", path="output\\directory\\")
 ```
 
+
 To retrieve scan result of a specific MD5
 
 ```python
