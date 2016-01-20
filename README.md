@@ -45,8 +45,8 @@ To retrieve scan result of a specific MD5
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
 result = sbx.sample_result(md5="MD5-hash", api_key="my-api-key")
-status = result['classification']['result']
-accuracy = result['classification']['accuracy']
+status = result.msg['classification']['result']
+accuracy = result.msg['classification']['accuracy']
 print "STATUS: %s ACCURACY: %s" % (status, accuracy)
 ```
 
