@@ -36,7 +36,7 @@ To download a sample:
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-sbx.download_sample(hash="MD5-hash", api_key="my-api-key", path="output\\directory\\")
+sbx.download_sample(md5="MD5-hash", api_key="my-api-key", path="output\\directory\\")
 ```
 
 
