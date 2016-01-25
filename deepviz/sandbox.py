@@ -1,5 +1,5 @@
-import requests
 import os
+import requests
 import simplejson
 
 URL_UPLOAD_SAMPLE = "https://api.deepviz.com/sandbox/submit"
