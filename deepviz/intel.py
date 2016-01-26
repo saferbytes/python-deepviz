@@ -1,36 +1,16 @@
+import inspect
 import requests
 import simplejson
-import inspect
+from deepviz.result import ResultError, ResultSuccess
 
-URL_INTEL_IP = "https://api.deepviz.com/intel/network/ip"
-URL_INTEL_DOMAIN = "https://api.deepviz.com/intel/network/domain"
-URL_INTEL_SEARCH = "https://api.deepviz.com/intel/search"
-URL_INTEL_SEARCH_ADVANCED = "https://api.deepviz.com/intel/search/advanced"
-
-
-class Result:
-    status = None
-    msg = None
-
-    def __init__(self, status, msg):
-        self.status = status
-        self.msg = msg
-
-    def __repr__(self):
-        return "Result(status='{status}', msg='{data}')".format(status=self.status, data=self.msg)
-
-
-class ResultError(Result):
-    def __init__(self, msg):
-        Result.__init__(self, 'error', msg)
-
-
-class ResultSuccess(Result):
-    def __init__(self, msg):
-        Result.__init__(self, 'success', msg)
+URL_INTEL_SEARCH            = "https://api.deepviz.com/intel/search"
+URL_INTEL_IP                = "https://api.deepviz.com/intel/network/ip"
+URL_INTEL_DOMAIN            = "https://api.deepviz.com/intel/network/domain"
+URL_INTEL_SEARCH_ADVANCED   = "https://api.deepviz.com/intel/search/advanced"
 
 
 class Intel:
+
     def ip_info(self, api_key=None, ip=None, time_delta=None, history=False):
         if not ip and not time_delta and not api_key:
             msg = "Invalid or missing parameters. Please try again!"
@@ -51,25 +31,25 @@ class Intel:
                 return ResultError(msg=msg)
 
             body = simplejson.dumps(
-                    {
-                        "api_key": api_key,
-                        "ip": ip,
-                        "history": _history
-                    }
+                {
+                    "history": _history,
+                    "api_key": api_key,
+                    "ip": ip,
+                }
             )
         elif time_delta:
             body = simplejson.dumps(
-                    {
-                        "api_key": api_key,
-                        "time_delta": time_delta,
-                        "history": _history
-                    }
+                {
+                    "time_delta": time_delta,
+                    "history": _history,
+                    "api_key": api_key,
+                }
             )
 
         try:
             r = requests.post(URL_INTEL_IP, data=body)
         except Exception as e:
-            msg = "Error while connecting to Deepviz. (%s)" % e
+            msg = "Error while connecting to Deepviz: (%s)" % e
             return ResultError(msg=msg)
 
         data = simplejson.loads(r.content)
@@ -78,7 +58,7 @@ class Intel:
             msg = data['data']
             return ResultSuccess(msg=msg)
         else:
-            msg = "(%s) Error while connecting to Deepviz. (%s)" % (r.status_code, data['errmsg'])
+            msg = "%s - %s" % (r.status_code, data['errmsg'])
             return ResultError(msg=msg)
 
     def domain_info(self, api_key=None, domain=None, time_delta=None, history=False, filters=None):
@@ -107,45 +87,45 @@ class Intel:
 
             if filters:
                 body = simplejson.dumps(
-                        {
-                            "api_key": api_key,
-                            "domain": domain,
-                            "history": _history,
-                            "output_filters": filters
-                        }
+                    {
+                        "output_filters": filters,
+                        "history": _history,
+                        "api_key": api_key,
+                        "domain": domain,
+                    }
                 )
             else:
                 body = simplejson.dumps(
-                        {
-                            "api_key": api_key,
-                            "domain": domain,
-                            "history": _history
-                        }
+                    {
+                        "history": _history,
+                        "api_key": api_key,
+                        "domain": domain,
+                    }
                 )
 
         elif time_delta:
             if filters:
                 body = simplejson.dumps(
-                        {
-                            "api_key": api_key,
-                            "time_delta": time_delta,
-                            "history": _history,
-                            "output_filters": filters
-                        }
+                    {
+                        "output_filters": filters,
+                        "time_delta": time_delta,
+                        "history": _history,
+                        "api_key": api_key,
+                    }
                 )
             else:
                 body = simplejson.dumps(
-                        {
-                            "api_key": api_key,
-                            "time_delta": time_delta,
-                            "history": _history
-                        }
+                    {
+                        "time_delta": time_delta,
+                        "history": _history,
+                        "api_key": api_key,
+                    }
                 )
 
         try:
             r = requests.post(URL_INTEL_DOMAIN, data=body)
         except Exception as e:
-            msg = "Error while connecting to Deepviz. (%s)" % e
+            msg = "Error while connecting to Deepviz: (%s)" % e
             return ResultError(msg=msg)
 
         data = simplejson.loads(r.content)
@@ -154,7 +134,7 @@ class Intel:
             msg = data['data']
             return ResultSuccess(msg=msg)
         else:
-            msg = "(%s) Error while connecting to Deepviz. (%s)" % (r.status_code, data['errmsg'])
+            msg = "%s - %s" % (r.status_code, data['errmsg'])
             return ResultError(msg=msg)
 
     def search(self, api_key=None, search_string=None, start_offset=None, elements=None):
@@ -166,24 +146,24 @@ class Intel:
 
             result_set = ["start=%d" % start_offset, "rows=%d" % elements]
             body = simplejson.dumps(
-                    {
-                        "api_key": api_key,
-                        "string": search_string,
-                        "result_set": result_set
-                    }
+                {
+                    "result_set": result_set,
+                    "string": search_string,
+                    "api_key": api_key,
+                }
             )
         else:
             body = simplejson.dumps(
-                    {
-                        "api_key": api_key,
-                        "string": search_string
-                    }
+                {
+                    "string": search_string,
+                    "api_key": api_key,
+                }
             )
 
         try:
             r = requests.post(URL_INTEL_SEARCH, data=body)
         except Exception as e:
-            msg = "Error while connecting to Deepviz. (%s)" % e
+            msg = "Error while connecting to Deepviz: %s" % e
             return ResultError(msg=msg)
 
         data = simplejson.loads(r.content)
@@ -192,12 +172,13 @@ class Intel:
             msg = data['data']
             return ResultSuccess(msg=msg)
         else:
-            msg = "(%s) Error while connecting to Deepviz. (%s)" % (r.status_code, data['errmsg'])
+            msg = "%s - %s" % (r.status_code, data['errmsg'])
             return ResultError(msg=msg)
 
-    def advanced_search(self, api_key=None, sim_hash=None, created_files=None, imp_hash=None, url=None, strings=None,
+    def advanced_search(self,api_key=None, sim_hash=None, created_files=None, imp_hash=None, url=None, strings=None,
                         ip=None, asn=None, classification=None, rules=None, country=None, new_sample=None,
                         time_delta=None, result_set=None, ip_range=None, domain=None):
+
         if not api_key:
             msg = "Invalid or missing parameters. Please try again!"
             return ResultError(msg=msg)
@@ -205,9 +186,10 @@ class Intel:
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
 
-        body = {}
+        body = {
+            'api_key': api_key
+        }
 
-        body['api_key'] = api_key
         for i in args:
             if values[i] and i != "self" and i != "api_key":
                 if i == "sim_hash" or i == "created_files" or i == "imp_hash" or i == "url" or i == "strings" or i == "ip" or i == "asn" or i == "rules" or i == "country" or i == "result_set" or i == "domain":
@@ -228,7 +210,7 @@ class Intel:
         try:
             r = requests.post(URL_INTEL_SEARCH_ADVANCED, data=final_body)
         except Exception as e:
-            msg = "Error while connecting to Deepviz. (%s)" % e
+            msg = "Error while connecting to Deepviz: %s" % e
             return ResultError(msg=msg)
 
         data = simplejson.loads(r.content)
@@ -237,5 +219,5 @@ class Intel:
             msg = data['data']
             return ResultSuccess(msg=msg)
         else:
-            msg = "(%s) Error while connecting to Deepviz. (%s)" % (r.status_code, data['errmsg'])
+            msg = "%s - %s" % (r.status_code, data['errmsg'])
             return ResultError(msg=msg)

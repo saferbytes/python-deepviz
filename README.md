@@ -1,5 +1,5 @@
 # python-deepviz
-python-deepviz is a wrapper for deepviz.com REST APIs
+python-deepviz is a Python wrapper for deepviz.com REST APIs
 
 # Install
 
@@ -39,6 +39,25 @@ sbx = sandbox.Sandbox()
 sbx.download_sample(md5="MD5-hash", api_key="my-api-key", path="output\\directory\\")
 ```
 
+To send a bulk download request:
+
+```python
+md5_list = [
+    "a6ca3b8c79e1b7e2a6ef046b0702aeb2",
+    "34781d4f8654f9547cc205061221aea5",
+    "a8c5c0d39753c97e1ffdfc6b17423dd6"
+]
+
+print sbx.bulk_download_request(md5_list=md5_list, api_key="my-api-key")
+```
+
+To download the archive af a bulk download request:
+
+```python
+from deepviz import sandbox
+sbx = sandbox.Sandbox()
+sbx.bulk_download_retrieve(id_request="id-request", api_key="my-api-key", path="output\\directory\\")
+```
 
 To retrieve scan result of a specific MD5
 
@@ -66,6 +85,7 @@ To retrieve only specific parts of the report of a specific MD5 scan
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
 result = sbx.sample_report(md5="MD5-hash", api_key="my-api-key", filters=["classification","rules"])
+
 # List of the optional filters - they can be combined together
 # "network_ip",
 # "network_ip_tcp",
@@ -79,6 +99,7 @@ result = sbx.sample_report(md5="MD5-hash", api_key="my-api-key", filters=["class
 # "hash",
 # "info",
 # "code_injection"
+
 print result
 ```
 # Threat Intelligence SDK API
@@ -88,7 +109,16 @@ To retrieve intel data about one or more IPs:
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.ip_info(api_key=API, ip=["1.22.28.94", "1.23.214.1"])
+result = ThreatIntel.ip_info(api_key="my-api-key", ip=["1.22.28.94", "1.23.214.1"])
+print result
+```
+
+To retrieve intel data about IPs contacted in the last 7 days:
+
+```python
+from deepviz import intel
+ThreatIntel = intel.Intel()
+result = ThreatIntel.ip_info(api_key="my-api-key", time_delta="7d")
 print result
 ```
 
@@ -97,7 +127,7 @@ To retrieve intel data about one or more domains:
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.domain_info(api_key=API, domain=["google.com"])
+result = ThreatIntel.domain_info(api_key="my-api-key", domain=["google.com"])
 print result
 ```
 
@@ -106,7 +136,7 @@ To retrieve newly registered domains in the last 7 days:
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.domain_info(api_key=API, time_delta="7d")
+result = ThreatIntel.domain_info(api_key="my-api-key", time_delta="7d")
 print result
 ```
 
@@ -116,7 +146,7 @@ To run generic search based on strings
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.search(api_key=API, search_string="justfacebook.net")
+result = ThreatIntel.search(api_key="my-api-key", search_string="justfacebook.net")
 print result
 ```
 
@@ -126,7 +156,7 @@ To run advanced search based on parameters
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-ThreatIntel.advanced_search(api_key=API, domain=["justfacebook.net"], classification="M")
+result = ThreatIntel.advanced_search(api_key="my-api-key", domain=["justfacebook.net"], classification="M")
 print result
 ```
 
@@ -138,20 +168,20 @@ behavioral rules
 
 ```python
 from deepviz import intel, sandbox
-API="0000000000"
+API_KEY="0000000000"
 ThreatIntel = intel.Intel()
 ThreatSbx = sandbox.Sandbox()
-result_domains = ThreatIntel.domain_info(api_key=API, time_delta="7d")
+result_domains = ThreatIntel.domain_info(api_key=API_KEY, time_delta="7d")
 domains = result_domains.msg
 for domain in domains.keys():
-    result_listsamples = ThreatIntel.advanced_search(api_key=API, domain=[domain], classification="M")
-    if isinstance(result_listsamples.msg, list):
+    result_list_samples = ThreatIntel.advanced_search(api_key=API_KEY, domain=[domain], classification="M")
+    if isinstance(result_list_samples.msg, list):
         if len(domains[domain]['tag']):
-            print "DOMAIN: %s ==> %s samples [TAG: %s]" % (domain, len(result_listsamples.msg), ", ".join((tag['key'] for tag in domains[domain]['tag'])))
+            print "DOMAIN: %s ==> %s samples [TAG: %s]" % (domain, len(result_list_samples.msg), ", ".join((tag['key'] for tag in domains[domain]['tag'])))
         else:
-            print "DOMAIN: %s ==> %s samples" % (domain, len(result_listsamples.msg))
-        for sample in result_listsamples.msg:
-            result_report = ThreatSbx.sample_report(md5=sample, api_key=API, filters=["rules"])
+            print "DOMAIN: %s ==> %s samples" % (domain, len(result_list_samples.msg))
+        for sample in result_list_samples.msg:
+            result_report = ThreatSbx.sample_report(md5=sample, api_key=API_KEY, filters=["rules"])
             print "%s => [%s]" % (sample, ", ".join((rule for rule in result_report.msg['rules'])))
     else:
         print "DOMAIN: %s ==> No samples found" % domain
