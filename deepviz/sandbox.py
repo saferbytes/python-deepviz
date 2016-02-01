@@ -1,7 +1,7 @@
 import os
 import requests
 import simplejson
-from deepviz.result import ResultError, ResultSuccess
+from deepviz.result import *
 
 URL_UPLOAD_SAMPLE   = "https://api.deepviz.com/sandbox/submit"
 URL_DOWNLOAD_REPORT = "https://api.deepviz.com/general/report"
@@ -11,20 +11,28 @@ URL_REQUEST_BULK    = "https://api.deepviz.com/sandbox/sample/bulk/request"
 
 
 class Sandbox:
-    def upload_sample(self, path=None, api_key=None):
-        if not path or not api_key:
-            msg = "Invalid or missing parameters. Please try again!"
-            return ResultError(msg=msg)
 
-        if not os.path.isfile(path):
-            msg = "Invalid path or file not found (%s). Please check and try again!" % path
-            return ResultError(msg=msg)
+    def __init__(self):
+        pass
+
+    def upload_sample(self, path=None, api_key=None):
+        if not path:
+            return Result(status=INPUT_ERROR, msg="File path cannot be null or empty String")
+
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not os.path.exists(path):
+            return Result(status=INPUT_ERROR, msg="File does not exists")
+
+        if not os.path.isdir(path):
+            return Result(status=INPUT_ERROR, msg="Path is a directory instead of a file")
 
         try:
             _file = open(path, "rb")
-        except Exception as e:
-            msg = "Cannot open file (%s). [%s]" % (path, e)
-            return ResultError(msg=msg)
+        except Exception as _:
+            msg = "Cannot open file '%s'" % path
+            return Result(status=INTERNAL_ERROR, msg=msg)
 
         body = {
             "api_key": api_key,
@@ -40,59 +48,73 @@ class Sandbox:
                 }
             )
         except Exception as e:
-            msg = "Error while connecting to Deepviz. [%s]" % e
-            return ResultError(msg=msg)
+            msg = "Error while connecting to Deepviz: %s" % e
+            return Result(status=NETWORK_ERROR, msg=msg)
 
         if r.status_code == 200:
             data = simplejson.loads(r.content)
             msg = data['data']
-            return ResultSuccess(msg=msg)
+            return Result(status=SUCCESS, msg=msg)
         else:
-            try:
-                data = simplejson.loads(r.content)
-                msg = "Error while connecting to Deepviz. [%s]" % data['errmsg']
-                return ResultError(msg=msg)
-            except Exception as e:
-                data = r.content
-                msg = "Error while connecting to Deepviz. [%s]" % data
-                return ResultError(msg=msg)
+            data = simplejson.loads(r.content)
+            if r.status_code >= 500:
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            else:
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+
 
     def upload_folder(self, path=None, api_key=None):
-        if not path or not api_key:
-            msg = "Invalid or missing parameters. Please try again!"
-            return ResultError(msg=msg)
+        if not path:
+            return Result(status=INPUT_ERROR, msg="Folder path cannot be null or empty String")
+
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not os.path.exists(path):
+            return Result(status=INPUT_ERROR, msg="Directory does not exists")
 
         if not os.path.isdir(path):
-            msg = "Path invalid or not found (%s). Please check" % path
-            return ResultError(msg=msg)
+            return Result(status=INPUT_ERROR, msg="Path is a file instead of a directory")
 
         buf = os.listdir(path)
 
-        for item in buf:
-            _file = os.path.join(path, item)
-            result = self.upload_sample(_file, api_key)
-            if result.status == 'error':
-                return ResultError(msg="Error uploading file '{file}': {msg}".format(file=_file, msg=result.msg))
+        if buf:
+            for item in buf:
+                _file = os.path.join(path, item)
+                result = self.upload_sample(_file, api_key)
+                if result.status == 'error':
+                    result.msg = "Error uploading file '{file}': {msg}".format(file=_file, msg=result.msg)
+                    return result
 
-            break
+                break
+            else:
+                return Result(status=SUCCESS, msg="Every file in folder has been uploaded")
         else:
-            return ResultSuccess(msg="Every file in folder has been uploaded")
+            return Result(status=INPUT_ERROR, msg="Empty folder")
+
 
     def download_sample(self, md5=None, path=None, api_key=None):
-        if not path or not api_key or not md5:
-            msg = "Invalid or missing parameters. Please try again!"
-            return ResultError(msg=msg)
+        if not path:
+            return Result(status=INPUT_ERROR, msg="File path cannot be null or empty String")
 
-        if not os.path.exists(path):
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not md5:
+            return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
+
+        if os.path.exists(path) and not os.path.isfile(path):
+            return Result(status=INPUT_ERROR, msg="Invalid destination folder")
+        elif not os.path.exists(path):
             os.makedirs(path)
 
         finalpath = os.path.join(path, md5)
 
         try:
             _file = open(finalpath, "wb")
-        except Exception as e:
-            msg = "Cannot create file (%s) [%s]" % (finalpath, e)
-            return ResultError(msg=msg)
+        except Exception as _:
+            msg = "Cannot create file '%s'" % finalpath
+            return Result(status=INTERNAL_ERROR, msg=msg)
 
         body = simplejson.dumps(
                 {
@@ -102,28 +124,26 @@ class Sandbox:
         try:
             r = requests.post(URL_DOWNLOAD_SAMPLE, data=body)
         except Exception as e:
-            msg = "Error while connecting to Deepviz. [%s]" % e
-            return ResultError(msg=msg)
+            return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
         if r.status_code == 200:
             _file.write(r.content)
             _file.close()
-            msg = "File downloaded to %s" % finalpath
-            return ResultSuccess(msg=msg)
+            return Result(status=SUCCESS, msg="Sample downloaded to '%s'" % finalpath)
         else:
-            try:
-                data = simplejson.loads(r.content)
-                msg = "Error while connecting to Deepviz. [%s]" % data['errmsg']
-                return ResultError(msg=msg)
-            except Exception as e:
-                data = r.content
-                msg = "Error while connecting to Deepviz. [%s]" % data
-                return ResultError(msg=msg)
+            data = simplejson.loads(r.content)
+            if r.status_code >= 500:
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            else:
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+
 
     def sample_result(self, md5=None, api_key=None):
-        if not md5 or not api_key:
-            msg = "Invalid or missing parameters. Please try again!"
-            return ResultError(msg=msg)
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not md5:
+            return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
 
         body = simplejson.dumps(
             {
@@ -135,22 +155,25 @@ class Sandbox:
         try:
             r = requests.post(URL_DOWNLOAD_REPORT, data=body)
         except Exception as e:
-            msg = "Error while connecting to Deepviz. [%s]" % e
-            return ResultError(msg=msg)
+            return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
         data = simplejson.loads(r.content)
 
         if r.status_code == 200:
-            msg = data['data']
-            return ResultSuccess(msg=msg)
+            return Result(status=SUCCESS, msg=data['data'])
         else:
-            msg = "(%s) Error while connecting to Deepviz. [%s]" % (r.status_code, data['errmsg'])
-            return ResultError(msg=msg)
+            if r.status_code >= 500:
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            else:
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+
 
     def sample_report(self, md5=None, api_key=None, filters=None):
-        if not md5 or not api_key:
-            msg = "Invalid or missing parameters. Please try again!"
-            return ResultError(msg=msg)
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not md5:
+            return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
 
         if not filters:
             body = simplejson.dumps(
@@ -171,22 +194,25 @@ class Sandbox:
         try:
             r = requests.post(URL_DOWNLOAD_REPORT, data=body)
         except Exception as e:
-            msg = "Error while connecting to Deepviz. (%s)" % e
-            return ResultError(msg=msg)
+            return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
         data = simplejson.loads(r.content)
 
         if r.status_code == 200:
-            msg = data['data']
-            return ResultSuccess(msg=msg)
+            return Result(status=SUCCESS, msg=data['data'])
         else:
-            msg = "(%s) Error while connecting to Deepviz. (%s)" % (r.status_code, data['errmsg'])
-            return ResultError(msg=msg)
+            if r.status_code >= 500:
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            else:
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+
 
     def bulk_download_request(self, md5_list=None, api_key=None):
-        if not md5_list or not api_key:
-            msg = "Invalid or missing parameters. Please try again!"
-            return ResultError(msg=msg)
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not md5_list:
+            return Result(status=INPUT_ERROR, msg="MD5 list empty or invalid")
 
         body = simplejson.dumps(
             {
@@ -197,32 +223,40 @@ class Sandbox:
             r = requests.post(URL_REQUEST_BULK, data=body)
         except Exception as e:
             msg = "Error while connecting to Deepviz. [%s]" % e
-            return ResultError(msg=msg)
+            return Result(status=NETWORK_ERROR, msg=msg)
 
         data = simplejson.loads(r.content)
 
         if r.status_code == 200:
-            msg = data['id_request']
-            return ResultSuccess(msg="ID request: {id}".format(id=msg))
+            return Result(status=SUCCESS, msg="ID request: {id}".format(id=data['id_request']))
         else:
-            msg = "(%s) Error while connecting to Deepviz. [%s]" % (r.status_code, data['errmsg'])
-            return ResultError(msg=msg)
+            if r.status_code >= 500:
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            else:
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+
 
     def bulk_download_retrieve(self, id_request=None, path=None, api_key=None):
-        if not path or not api_key or not id_request:
-            msg = "Invalid or missing parameters. Please try again!"
-            return ResultError(msg=msg)
+        if not path:
+            return Result(status=INPUT_ERROR, msg="File path cannot be null or empty String")
 
-        if not os.path.exists(path):
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not id_request:
+            return Result(status=INPUT_ERROR, msg="Request ID cannot be null or empty String")
+
+        if os.path.exists(path) and not os.path.isfile(path):
+            return Result(status=INPUT_ERROR, msg="Invalid destination folder")
+        elif not os.path.exists(path):
             os.makedirs(path)
 
         finalpath = os.path.join(path, "bulk_request_{id}.zip".format(id=id_request))
 
         try:
             _file = open(finalpath, "wb")
-        except Exception as e:
-            msg = "Cannot create file (%s) [%s]" % (finalpath, e)
-            return ResultError(msg=msg)
+        except Exception as _:
+            return Result(status=INTERNAL_ERROR, msg="Cannot create file '%s'" % finalpath)
 
         body = simplejson.dumps(
                 {
@@ -232,20 +266,15 @@ class Sandbox:
         try:
             r = requests.post(URL_DOWNLOAD_BULK, data=body)
         except Exception as e:
-            msg = "Error while connecting to Deepviz. [%s]" % e
-            return ResultError(msg=msg)
+            return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
         if r.status_code == 200:
             _file.write(r.content)
             _file.close()
-            msg = "File downloaded to %s" % finalpath
-            return ResultSuccess(msg=msg)
+            return Result(status=SUCCESS, msg="File downloaded to '%s'" % finalpath)
         else:
-            try:
-                data = simplejson.loads(r.content)
-                msg = "Error while connecting to Deepviz. [%s]" % data['errmsg']
-                return ResultError(msg=msg)
-            except Exception as e:
-                data = r.content
-                msg = "Error while connecting to Deepviz. [%s]" % data
-                return ResultError(msg=msg)
+            data = simplejson.loads(r.content)
+            if r.status_code >= 500:
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            else:
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))

@@ -35,7 +35,6 @@ while result.status != "success":
 
 print result.msg['classification']['result']
 
-
 # Send a bulk download request
 md5_list = [
     "a6ca3b8c79e1b7e2a6ef046b0702aeb2",
@@ -49,7 +48,7 @@ print result
 # Download bulk request archive
 print sbx.bulk_download_retrieve(id_request=33, api_key=API_KEY, path=".")
 
-#######################################################################################################################
+########################################################################################################################
 
 ThreatIntel = intel.Intel()
 
@@ -65,7 +64,7 @@ print result
 result = ThreatIntel.domain_info(api_key=API_KEY, domain=["google.com"])
 print result
 
-#To retrieve newly registered domains in the last 7 days:
+# To retrieve newly registered domains in the last 7 days:
 result = ThreatIntel.domain_info(api_key=API_KEY, time_delta="7d")
 print result
 
@@ -80,9 +79,9 @@ result = ThreatIntel.advanced_search(api_key=API_KEY, domain=["justfacebook.net"
 print result
 
 # More advanced usage examples
-#Find all domains registered in the last 7 days, print out the malware tags related to them and
-#list all MD5 samples connecting to them. Then for each one of the samples retrieve the matched
-#behavioral rules
+# Find all domains registered in the last 7 days, print out the malware tags related to them and
+# list all MD5 samples connecting to them. Then for each one of the samples retrieve the matched
+# behavioral rules
 
 ThreatSbx = sandbox.Sandbox()
 result_domains = ThreatIntel.domain_info(api_key=API_KEY, time_delta="7d")

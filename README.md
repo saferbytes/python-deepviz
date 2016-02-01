@@ -127,7 +127,12 @@ To retrieve intel data about one or more domains:
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.domain_info(api_key="my-api-key", domain=["google.com"])
+result = ThreatIntel.domain_info(api_key="my-api-key", domain=["google.com"], filters=["sub_domains"])
+
+# List of the optional filters - they can be combined together
+# "whois",
+# "sub_domains"
+
 print result
 ```
 
@@ -136,7 +141,13 @@ To retrieve newly registered domains in the last 7 days:
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.domain_info(api_key="my-api-key", time_delta="7d")
+result = ThreatIntel.domain_info(api_key="my-api-key", time_delta="7d", filters=["whois"])
+
+# List of the optional filters - they can be combined together
+# "whois",
+# "sub_domains"
+
+
 print result
 ```
 
