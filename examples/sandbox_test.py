@@ -20,7 +20,7 @@ f.write(str(result.msg))
 f.close()
 
 # Download sample binary
-print sbx.download_sample(md5="a6ca3b8c79e1b7e2a6ef046b0702aeb2", api_key=API_KEY, path=".")
+print sbx.download_sample(md5="a6ca3b8c79e1b7e2a6ef046b0702aeb2", api_key=API_KEY, path="./")
 
 # Upload sample and wait until the analysis is complete
 _hash = hashlib.md5(open("a6ca3b8c79e1b7e2a6ef046b0702aeb2", 'rb').read()).hexdigest()
@@ -46,7 +46,7 @@ result = sbx.bulk_download_request(md5_list=md5_list, api_key=API_KEY)
 print result
 
 # Download bulk request archive
-print sbx.bulk_download_retrieve(id_request=33, api_key=API_KEY, path=".")
+print sbx.bulk_download_retrieve(id_request=1, api_key=API_KEY, path=".")
 
 ########################################################################################################################
 
@@ -90,7 +90,7 @@ for domain in domains.keys():
     result_list_samples = ThreatIntel.advanced_search(api_key=API_KEY, domain=[domain], classification="M")
     if isinstance(result_list_samples.msg, list):
         if len(domains[domain]['tag']):
-            print "DOMAIN: %s ==> %s samples [TAG: %s]" % (domain, len(result_list_samples.msg), ", ".join((tag['key'] for tag in domains[domain]['tag'])))
+            print "DOMAIN: %s ==> %s samples [TAG: %s]" % (domain, len(result_list_samples.msg), ", ".join((tag for tag in domains[domain]['tag'])))
         else:
             print "DOMAIN: %s ==> %s samples" % (domain, len(result_list_samples.msg))
         for sample in result_list_samples.msg:

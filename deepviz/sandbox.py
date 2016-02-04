@@ -25,7 +25,7 @@ class Sandbox:
         if not os.path.exists(path):
             return Result(status=INPUT_ERROR, msg="File does not exists")
 
-        if not os.path.isdir(path):
+        if os.path.isdir(path):
             return Result(status=INPUT_ERROR, msg="Path is a directory instead of a file")
 
         try:
@@ -103,7 +103,7 @@ class Sandbox:
         if not md5:
             return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
 
-        if os.path.exists(path) and not os.path.isfile(path):
+        if os.path.exists(path) and os.path.isfile(path):
             return Result(status=INPUT_ERROR, msg="Invalid destination folder")
         elif not os.path.exists(path):
             os.makedirs(path)
@@ -231,9 +231,9 @@ class Sandbox:
             return Result(status=SUCCESS, msg="ID request: {id}".format(id=data['id_request']))
         else:
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def bulk_download_retrieve(self, id_request=None, path=None, api_key=None):
@@ -246,7 +246,7 @@ class Sandbox:
         if not id_request:
             return Result(status=INPUT_ERROR, msg="Request ID cannot be null or empty String")
 
-        if os.path.exists(path) and not os.path.isfile(path):
+        if os.path.exists(path) and os.path.isfile(path):
             return Result(status=INPUT_ERROR, msg="Invalid destination folder")
         elif not os.path.exists(path):
             os.makedirs(path)
@@ -275,6 +275,6 @@ class Sandbox:
         else:
             data = simplejson.loads(r.content)
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
