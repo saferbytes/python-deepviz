@@ -147,7 +147,6 @@ result = ThreatIntel.domain_info(api_key="my-api-key", time_delta="7d", filters=
 # "whois",
 # "sub_domains"
 
-
 print result
 ```
 
