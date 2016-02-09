@@ -58,9 +58,9 @@ class Sandbox:
         else:
             data = simplejson.loads(r.content)
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def upload_folder(self, path=None, api_key=None):
@@ -82,11 +82,9 @@ class Sandbox:
             for item in buf:
                 _file = os.path.join(path, item)
                 result = self.upload_sample(_file, api_key)
-                if result.status == 'error':
+                if result.status != SUCCESS:
                     result.msg = "Error uploading file '{file}': {msg}".format(file=_file, msg=result.msg)
                     return result
-
-                break
             else:
                 return Result(status=SUCCESS, msg="Every file in folder has been uploaded")
         else:
@@ -133,9 +131,9 @@ class Sandbox:
         else:
             data = simplejson.loads(r.content)
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def sample_result(self, md5=None, api_key=None):
@@ -163,9 +161,9 @@ class Sandbox:
             return Result(status=SUCCESS, msg=data['data'])
         else:
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def sample_report(self, md5=None, api_key=None, filters=None):
@@ -202,9 +200,9 @@ class Sandbox:
             return Result(status=SUCCESS, msg=data['data'])
         else:
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def bulk_download_request(self, md5_list=None, api_key=None):

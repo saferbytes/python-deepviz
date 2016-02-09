@@ -1,11 +1,14 @@
 import time
 import hashlib
-from deepviz import intel
-from deepviz import sandbox
+import sys
+sys.path.insert(0, r'../')
+from deepviz.intel import Intel
+from deepviz.sandbox import Sandbox
+from deepviz.result import *
 
 API_KEY = "0000000000000000000000000000000000000000000000000000000000000000"
 
-sbx = sandbox.Sandbox()
+sbx = Sandbox()
 
 # Retrieve sample scan result
 result = sbx.sample_result(md5="a6ca3b8c79e1b7e2a6ef046b0702aeb2", api_key=API_KEY)
@@ -29,13 +32,17 @@ print sbx.upload_sample(path="a6ca3b8c79e1b7e2a6ef046b0702aeb2", api_key=API_KEY
 
 result = sbx.sample_result(md5=_hash, api_key=API_KEY)
 
-while result.status != "success":
+while result.status != SUCCESS:
     time.sleep(30)
     result = sbx.sample_result(md5=_hash, api_key=API_KEY)
 
 print result.msg['classification']['result']
 
-# Send a bulk download request
+# Upload a folder
+result = sbx.upload_folder(path="uploadfolder",  api_key=API_KEY)
+print result
+
+# Send a bulk download request and download the related archive
 md5_list = [
     "a6ca3b8c79e1b7e2a6ef046b0702aeb2",
     "34781d4f8654f9547cc205061221aea5",
@@ -44,13 +51,12 @@ md5_list = [
 
 result = sbx.bulk_download_request(md5_list=md5_list, api_key=API_KEY)
 print result
-
-# Download bulk request archive
-print sbx.bulk_download_retrieve(id_request=1, api_key=API_KEY, path=".")
+if result.status == SUCCESS:
+    print sbx.bulk_download_retrieve(id_request=result.msg['id_request'], api_key=API_KEY, path=".")
 
 ########################################################################################################################
 
-ThreatIntel = intel.Intel()
+ThreatIntel = Intel()
 
 # To retrieve intel data about  IPs in the last 7 days:
 result = ThreatIntel.ip_info(api_key=API_KEY, time_delta="7d")
@@ -83,7 +89,7 @@ print result
 # list all MD5 samples connecting to them. Then for each one of the samples retrieve the matched
 # behavioral rules
 
-ThreatSbx = sandbox.Sandbox()
+ThreatSbx = Sandbox()
 result_domains = ThreatIntel.domain_info(api_key=API_KEY, time_delta="7d")
 domains = result_domains.msg
 for domain in domains.keys():

@@ -1,6 +1,7 @@
 import inspect
 import requests
 import simplejson
+
 from deepviz.result import *
 
 URL_INTEL_SEARCH            = "https://api.deepviz.com/intel/search"
@@ -61,9 +62,9 @@ class Intel:
         else:
             data = simplejson.loads(r.content)
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def domain_info(self, api_key=None, domain=None, time_delta=None, history=False, filters=None):
@@ -138,9 +139,9 @@ class Intel:
             return Result(status=SUCCESS, msg=data['data'])
         else:
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def search(self, api_key=None, search_string=None, start_offset=None, elements=None):
@@ -178,9 +179,9 @@ class Intel:
             return Result(status=SUCCESS, msg=data['data'])
         else:
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def advanced_search(self, api_key=None, sim_hash=None, created_files=None, imp_hash=None, url=None, strings=None,
@@ -226,6 +227,6 @@ class Intel:
             return Result(status=SUCCESS, msg=msg)
         else:
             if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {ex}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))

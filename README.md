@@ -20,7 +20,8 @@ To upload a sample:
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-sbx.upload_sample(path="path\\to\\file.exe", api_key="my-api-key")
+result = sbx.upload_sample(path="path\\to\\file.exe", api_key="my-api-key")
+print result
 ```
 
 To upload a folder:
@@ -28,7 +29,8 @@ To upload a folder:
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-sbx.upload_folder(path="path\\to\\files", api_key="my-api-key")
+result = sbx.upload_folder(path="path\\to\\files", api_key="my-api-key")
+print result
 ```
 
 To download a sample:
@@ -36,27 +38,27 @@ To download a sample:
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
-sbx.download_sample(md5="MD5-hash", api_key="my-api-key", path="output\\directory\\")
+result = sbx.download_sample(md5="MD5-hash", api_key="my-api-key", path="output\\directory\\")
+print result
 ```
 
-To send a bulk download request:
+To send a bulk download request and download the related archive:
 
 ```python
+from deepviz.sandbox import Sandbox
+from deepviz.result import *
+
+sbx = Sandbox()
 md5_list = [
     "a6ca3b8c79e1b7e2a6ef046b0702aeb2",
     "34781d4f8654f9547cc205061221aea5",
     "a8c5c0d39753c97e1ffdfc6b17423dd6"
 ]
 
-print sbx.bulk_download_request(md5_list=md5_list, api_key="my-api-key")
-```
-
-To download the archive af a bulk download request:
-
-```python
-from deepviz import sandbox
-sbx = sandbox.Sandbox()
-sbx.bulk_download_retrieve(id_request="id-request", api_key="my-api-key", path="output\\directory\\")
+result = sbx.bulk_download_request(md5_list=md5_list, api_key="my-api-key")
+print result
+if result.status == SUCCESS:
+    print sbx.bulk_download_retrieve(id_request=result.msg['id_request'], api_key="my-api-key", path="output\\directory\\")
 ```
 
 To retrieve scan result of a specific MD5
@@ -178,7 +180,7 @@ behavioral rules
 
 ```python
 from deepviz import intel, sandbox
-API_KEY="0000000000"
+API_KEY = "0000000000000000000000000000000000000000000000000000000000000000"
 ThreatIntel = intel.Intel()
 ThreatSbx = sandbox.Sandbox()
 result_domains = ThreatIntel.domain_info(api_key=API_KEY, time_delta="7d")
