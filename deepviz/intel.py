@@ -1,8 +1,12 @@
 import inspect
 import requests
-import simplejson
-
 from deepviz.result import *
+
+try:
+    import json
+except:
+    import simplejson as json
+
 
 URL_INTEL_SEARCH            = "https://api.deepviz.com/intel/search"
 URL_INTEL_IP                = "https://api.deepviz.com/intel/network/ip"
@@ -33,7 +37,7 @@ class Intel:
                 msg = "You must provide one or more IPs in a list"
                 return Result(status=INPUT_ERROR, msg=msg)
 
-            body = simplejson.dumps(
+            body = json.dumps(
                 {
                     "history": _history,
                     "api_key": api_key,
@@ -42,7 +46,7 @@ class Intel:
             )
 
         if time_delta:
-            body = simplejson.dumps(
+            body = json.dumps(
                 {
                     "time_delta": time_delta,
                     "history": _history,
@@ -55,12 +59,12 @@ class Intel:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = simplejson.loads(r.content)
+        data = json.loads(r.content)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
         else:
-            data = simplejson.loads(r.content)
+            data = json.loads(r.content)
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
@@ -91,7 +95,7 @@ class Intel:
                 return Result(status=INPUT_ERROR, msg=msg)
 
             if filters:
-                body = simplejson.dumps(
+                body = json.dumps(
                     {
                         "output_filters": filters,
                         "history": _history,
@@ -100,7 +104,7 @@ class Intel:
                     }
                 )
             else:
-                body = simplejson.dumps(
+                body = json.dumps(
                     {
                         "history": _history,
                         "api_key": api_key,
@@ -110,7 +114,7 @@ class Intel:
 
         elif time_delta:
             if filters:
-                body = simplejson.dumps(
+                body = json.dumps(
                     {
                         "output_filters": filters,
                         "time_delta": time_delta,
@@ -119,7 +123,7 @@ class Intel:
                     }
                 )
             else:
-                body = simplejson.dumps(
+                body = json.dumps(
                     {
                         "time_delta": time_delta,
                         "history": _history,
@@ -133,7 +137,7 @@ class Intel:
             msg = "Error while connecting to Deepviz: %s" % e
             return Result(status=NETWORK_ERROR, msg=msg)
 
-        data = simplejson.loads(r.content)
+        data = json.loads(r.content)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -153,7 +157,7 @@ class Intel:
 
         if start_offset is not None and elements is not None:
             result_set = ["start=%d" % start_offset, "rows=%d" % elements]
-            body = simplejson.dumps(
+            body = json.dumps(
                 {
                     "result_set": result_set,
                     "string": search_string,
@@ -161,7 +165,7 @@ class Intel:
                 }
             )
         else:
-            body = simplejson.dumps(
+            body = json.dumps(
                 {
                     "string": search_string,
                     "api_key": api_key,
@@ -173,7 +177,7 @@ class Intel:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = simplejson.loads(r.content)
+        data = json.loads(r.content)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -213,14 +217,14 @@ class Intel:
                         msg = "Value '%s' must be in a string form" % i
                         return Result(status=INPUT_ERROR, msg=msg)
 
-        final_body = simplejson.dumps(body)
+        final_body = json.dumps(body)
 
         try:
             r = requests.post(URL_INTEL_SEARCH_ADVANCED, data=final_body)
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = simplejson.loads(r.content)
+        data = json.loads(r.content)
 
         if r.status_code == 200:
             msg = data['data']

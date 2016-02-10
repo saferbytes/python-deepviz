@@ -1,7 +1,11 @@
 import os
 import requests
-import simplejson
 from deepviz.result import *
+
+try:
+    import json
+except:
+    import simplejson as json
 
 URL_UPLOAD_SAMPLE   = "https://api.deepviz.com/sandbox/submit"
 URL_DOWNLOAD_REPORT = "https://api.deepviz.com/general/report"
@@ -52,11 +56,11 @@ class Sandbox:
             return Result(status=NETWORK_ERROR, msg=msg)
 
         if r.status_code == 200:
-            data = simplejson.loads(r.content)
+            data = json.loads(r.content)
             msg = data['data']
             return Result(status=SUCCESS, msg=msg)
         else:
-            data = simplejson.loads(r.content)
+            data = json.loads(r.content)
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
@@ -114,7 +118,7 @@ class Sandbox:
             msg = "Cannot create file '%s'" % finalpath
             return Result(status=INTERNAL_ERROR, msg=msg)
 
-        body = simplejson.dumps(
+        body = json.dumps(
                 {
                     "api_key": api_key,
                     "md5": md5
@@ -129,7 +133,7 @@ class Sandbox:
             _file.close()
             return Result(status=SUCCESS, msg="Sample downloaded to '%s'" % finalpath)
         else:
-            data = simplejson.loads(r.content)
+            data = json.loads(r.content)
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
@@ -143,7 +147,7 @@ class Sandbox:
         if not md5:
             return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
 
-        body = simplejson.dumps(
+        body = json.dumps(
             {
                 "api_key": api_key,
                 "md5": md5,
@@ -155,7 +159,7 @@ class Sandbox:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = simplejson.loads(r.content)
+        data = json.loads(r.content)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -174,14 +178,14 @@ class Sandbox:
             return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
 
         if not filters:
-            body = simplejson.dumps(
+            body = json.dumps(
                 {
                     "api_key": api_key,
                     "md5": md5
                 }
             )
         else:
-            body = simplejson.dumps(
+            body = json.dumps(
                 {
                     "md5": md5,
                     "api_key": api_key,
@@ -194,7 +198,7 @@ class Sandbox:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = simplejson.loads(r.content)
+        data = json.loads(r.content)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -212,7 +216,7 @@ class Sandbox:
         if not md5_list:
             return Result(status=INPUT_ERROR, msg="MD5 list empty or invalid")
 
-        body = simplejson.dumps(
+        body = json.dumps(
             {
                 "api_key": api_key,
                 "hashes": md5_list
@@ -223,7 +227,7 @@ class Sandbox:
             msg = "Error while connecting to Deepviz. [%s]" % e
             return Result(status=NETWORK_ERROR, msg=msg)
 
-        data = simplejson.loads(r.content)
+        data = json.loads(r.content)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -256,7 +260,7 @@ class Sandbox:
         except Exception as _:
             return Result(status=INTERNAL_ERROR, msg="Cannot create file '%s'" % finalpath)
 
-        body = simplejson.dumps(
+        body = json.dumps(
                 {
                     "api_key": api_key,
                     "id_request": str(id_request)
@@ -271,7 +275,7 @@ class Sandbox:
             _file.close()
             return Result(status=SUCCESS, msg="File downloaded to '%s'" % finalpath)
         else:
-            data = simplejson.loads(r.content)
+            data = json.loads(r.content)
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
