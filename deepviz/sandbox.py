@@ -55,12 +55,15 @@ class Sandbox:
             msg = "Error while connecting to Deepviz: %s" % e
             return Result(status=NETWORK_ERROR, msg=msg)
 
-        if r.status_code == 200:
+        try:
             data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
+        if r.status_code == 200:
             msg = data['data']
             return Result(status=SUCCESS, msg=msg)
         else:
-            data = json.loads(r.content)
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
@@ -119,10 +122,10 @@ class Sandbox:
             return Result(status=INTERNAL_ERROR, msg=msg)
 
         body = json.dumps(
-                {
-                    "api_key": api_key,
-                    "md5": md5
-                })
+            {
+                "api_key": api_key,
+                "md5": md5
+            })
         try:
             r = requests.post(URL_DOWNLOAD_SAMPLE, data=body)
         except Exception as e:
@@ -133,7 +136,11 @@ class Sandbox:
             _file.close()
             return Result(status=SUCCESS, msg="Sample downloaded to '%s'" % finalpath)
         else:
-            data = json.loads(r.content)
+            try:
+                data = json.loads(r.content)
+            except Exception as e:
+                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
@@ -159,7 +166,10 @@ class Sandbox:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = json.loads(r.content)
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -198,7 +208,10 @@ class Sandbox:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = json.loads(r.content)
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -227,7 +240,10 @@ class Sandbox:
             msg = "Error while connecting to Deepviz. [%s]" % e
             return Result(status=NETWORK_ERROR, msg=msg)
 
-        data = json.loads(r.content)
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -261,21 +277,30 @@ class Sandbox:
             return Result(status=INTERNAL_ERROR, msg="Cannot create file '%s'" % finalpath)
 
         body = json.dumps(
-                {
-                    "api_key": api_key,
-                    "id_request": str(id_request)
-                })
+            {
+                "api_key": api_key,
+                "id_request": str(id_request)
+            })
         try:
             r = requests.post(URL_DOWNLOAD_BULK, data=body)
         except Exception as e:
+            _file.close()
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
         if r.status_code == 200:
             _file.write(r.content)
             _file.close()
             return Result(status=SUCCESS, msg="File downloaded to '%s'" % finalpath)
+        elif r.status_code == 428:
+            _file.close()
+            return Result(status=PROCESSING, msg="{status_code} - Your request is being processed. Please try again in a few minutes".format(status_code=r.status_code))
         else:
-            data = json.loads(r.content)
+            _file.close()
+            try:
+                data = json.loads(r.content)
+            except Exception as e:
+                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:

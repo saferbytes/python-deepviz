@@ -59,12 +59,14 @@ class Intel:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = json.loads(r.content)
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
         else:
-            data = json.loads(r.content)
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
@@ -137,7 +139,10 @@ class Intel:
             msg = "Error while connecting to Deepviz: %s" % e
             return Result(status=NETWORK_ERROR, msg=msg)
 
-        data = json.loads(r.content)
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -177,7 +182,10 @@ class Intel:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = json.loads(r.content)
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
 
         if r.status_code == 200:
             return Result(status=SUCCESS, msg=data['data'])
@@ -224,7 +232,10 @@ class Intel:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        data = json.loads(r.content)
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
 
         if r.status_code == 200:
             msg = data['data']

@@ -50,9 +50,16 @@ md5_list = [
 ]
 
 result = sbx.bulk_download_request(md5_list=md5_list, api_key=API_KEY)
-print result
 if result.status == SUCCESS:
-    print sbx.bulk_download_retrieve(id_request=result.msg['id_request'], api_key=API_KEY, path=".")
+    print result
+    while True:
+        result2 = sbx.bulk_download_retrieve(id_request=result.msg['id_request'], api_key=API_KEY, path=".")
+        if result2.status != PROCESSING:
+            print result2
+            break
+
+        time.sleep(1)
+
 
 ########################################################################################################################
 
@@ -90,17 +97,29 @@ print result
 # behavioral rules
 
 ThreatSbx = Sandbox()
-result_domains = ThreatIntel.domain_info(api_key=API_KEY, time_delta="7d")
-domains = result_domains.msg
-for domain in domains.keys():
-    result_list_samples = ThreatIntel.advanced_search(api_key=API_KEY, domain=[domain], classification="M")
-    if isinstance(result_list_samples.msg, list):
-        if len(domains[domain]['tag']):
-            print "DOMAIN: %s ==> %s samples [TAG: %s]" % (domain, len(result_list_samples.msg), ", ".join((tag for tag in domains[domain]['tag'])))
+result_domains = ThreatIntel.domain_info(api_key=API_KEY, time_delta="3d")
+if result_domains.status == SUCCESS:
+    domains = result_domains.msg
+    for domain in domains.keys():
+        result_list_samples = ThreatIntel.advanced_search(api_key=API_KEY, domain=[domain], classification="M")
+        if result_list_samples.status == SUCCESS:
+            if isinstance(result_list_samples.msg, list):
+                if len(domains[domain]['tag']):
+                    print "DOMAIN: %s ==> %s samples [TAG: %s]" % (domain, len(result_list_samples.msg), ", ".join((tag for tag in domains[domain]['tag'])))
+                else:
+                    print "DOMAIN: %s ==> %s samples" % (domain, len(result_list_samples.msg))
+
+                for sample in result_list_samples.msg:
+                    result_report = ThreatSbx.sample_report(md5=sample, api_key=API_KEY, filters=["rules"])
+                    if result_report.status == SUCCESS:
+                        print "%s => [%s]" % (sample, ", ".join([rule for rule in result_report.msg['rules']]))
+                    else:
+                        print result_report
+                        break
+            else:
+                print "DOMAIN: %s ==> No samples found" % domain
         else:
-            print "DOMAIN: %s ==> %s samples" % (domain, len(result_list_samples.msg))
-        for sample in result_list_samples.msg:
-            result_report = ThreatSbx.sample_report(md5=sample, api_key=API_KEY, filters=["rules"])
-            print "%s => [%s]" % (sample, ", ".join((rule for rule in result_report.msg['rules'])))
-    else:
-        print "DOMAIN: %s ==> No samples found" % domain
+            print result_list_samples
+            break
+else:
+    print result_domains
