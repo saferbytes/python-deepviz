@@ -55,19 +55,22 @@ class Sandbox:
             msg = "Error while connecting to Deepviz: %s" % e
             return Result(status=NETWORK_ERROR, msg=msg)
 
-        try:
-            data = json.loads(r.content)
-        except Exception as e:
-            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
-
-        if r.status_code == 200:
-            msg = data['data']
-            return Result(status=SUCCESS, msg=msg)
+        if r.status_code == 428:
+            return Result(status=PROCESSING, msg="Analysis is already running")
         else:
-            if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            try:
+                data = json.loads(r.content)
+            except Exception as e:
+                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
+            if r.status_code == 200:
+                msg = data['data']
+                return Result(status=SUCCESS, msg=msg)
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                if r.status_code >= 500:
+                    return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                else:
+                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def upload_folder(self, path=None, api_key=None):
@@ -89,7 +92,7 @@ class Sandbox:
             for item in buf:
                 _file = os.path.join(path, item)
                 result = self.upload_sample(_file, api_key)
-                if result.status != SUCCESS:
+                if result.status != SUCCESS and result.status != PROCESSING:
                     result.msg = "Error uploading file '{file}': {msg}".format(file=_file, msg=result.msg)
                     return result
             else:
@@ -166,18 +169,21 @@ class Sandbox:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        try:
-            data = json.loads(r.content)
-        except Exception as e:
-            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
-
-        if r.status_code == 200:
-            return Result(status=SUCCESS, msg=data['data'])
+        if r.status_code == 428:
+            return Result(status=PROCESSING, msg="Analysis is running")
         else:
-            if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            try:
+                data = json.loads(r.content)
+            except Exception as e:
+                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
+            if r.status_code == 200:
+                return Result(status=SUCCESS, msg=data['data'])
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                if r.status_code >= 500:
+                    return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                else:
+                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def sample_report(self, md5=None, api_key=None, filters=None):
@@ -208,18 +214,21 @@ class Sandbox:
         except Exception as e:
             return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
 
-        try:
-            data = json.loads(r.content)
-        except Exception as e:
-            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
-
-        if r.status_code == 200:
-            return Result(status=SUCCESS, msg=data['data'])
+        if r.status_code == 428:
+            return Result(status=PROCESSING, msg="Analysis is running")
         else:
-            if r.status_code >= 500:
-                return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+            try:
+                data = json.loads(r.content)
+            except Exception as e:
+                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
+            if r.status_code == 200:
+                return Result(status=SUCCESS, msg=data['data'])
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                if r.status_code >= 500:
+                    return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                else:
+                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def bulk_download_request(self, md5_list=None, api_key=None):
