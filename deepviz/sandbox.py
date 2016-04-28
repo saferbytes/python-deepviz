@@ -7,8 +7,8 @@ try:
 except:
     import simplejson as json
 
+URL_SAMPLE_REPORT   = "https://api.deepviz.com/general/report"
 URL_UPLOAD_SAMPLE   = "https://api.deepviz.com/sandbox/submit"
-URL_DOWNLOAD_REPORT = "https://api.deepviz.com/general/report"
 URL_DOWNLOAD_SAMPLE = "https://api.deepviz.com/sandbox/sample"
 URL_DOWNLOAD_BULK   = "https://api.deepviz.com/sandbox/sample/bulk/retrieve"
 URL_REQUEST_BULK    = "https://api.deepviz.com/sandbox/sample/bulk/request"
@@ -18,6 +18,47 @@ class Sandbox:
 
     def __init__(self):
         pass
+
+    def sample_report(self, md5=None, api_key=None):
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not md5:
+            return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
+
+        body = json.dumps(
+            {
+                "md5": md5,
+                "api_key": api_key
+            }
+        )
+
+        try:
+            r = requests.post(URL_SAMPLE_REPORT, data=body)
+        except Exception as e:
+            return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
+
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
+        if r.status_code == 428:
+            return Result(status=PROCESSING, msg="Analysis is running")
+        else:
+            try:
+                data = json.loads(r.content)
+            except Exception as e:
+                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
+            if r.status_code == 200:
+                return Result(status=SUCCESS, msg=data['data'])
+            else:
+                if r.status_code >= 500:
+                    return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                else:
+                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+
 
     def upload_sample(self, path=None, api_key=None):
         if not path:
@@ -148,87 +189,6 @@ class Sandbox:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
                 return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
-
-
-    def sample_result(self, md5=None, api_key=None):
-        if not api_key:
-            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
-
-        if not md5:
-            return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
-
-        body = json.dumps(
-            {
-                "api_key": api_key,
-                "md5": md5,
-                "output_filters": ["classification"]
-            }
-        )
-        try:
-            r = requests.post(URL_DOWNLOAD_REPORT, data=body)
-        except Exception as e:
-            return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
-
-        if r.status_code == 428:
-            return Result(status=PROCESSING, msg="Analysis is running")
-        else:
-            try:
-                data = json.loads(r.content)
-            except Exception as e:
-                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
-
-            if r.status_code == 200:
-                return Result(status=SUCCESS, msg=data['data'])
-            else:
-                if r.status_code >= 500:
-                    return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
-                else:
-                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
-
-
-    def sample_report(self, md5=None, api_key=None, filters=None):
-        if not api_key:
-            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
-
-        if not md5:
-            return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
-
-        if not filters:
-            body = json.dumps(
-                {
-                    "api_key": api_key,
-                    "md5": md5
-                }
-            )
-        else:
-            body = json.dumps(
-                {
-                    "md5": md5,
-                    "api_key": api_key,
-                    "output_filters": filters
-                }
-            )
-
-        try:
-            r = requests.post(URL_DOWNLOAD_REPORT, data=body)
-        except Exception as e:
-            return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
-
-        if r.status_code == 428:
-            return Result(status=PROCESSING, msg="Analysis is running")
-        else:
-            try:
-                data = json.loads(r.content)
-            except Exception as e:
-                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
-
-            if r.status_code == 200:
-                return Result(status=SUCCESS, msg=data['data'])
-            else:
-                if r.status_code >= 500:
-                    return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
-                else:
-                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def bulk_download_request(self, md5_list=None, api_key=None):

@@ -8,6 +8,7 @@ except:
     import simplejson as json
 
 
+URL_INTEL_REPORT            = "https://api.deepviz.com/intel/report"
 URL_INTEL_SEARCH            = "https://api.deepviz.com/intel/search"
 URL_INTEL_IP                = "https://api.deepviz.com/intel/network/ip"
 URL_INTEL_DOMAIN            = "https://api.deepviz.com/intel/network/domain"
@@ -18,6 +19,62 @@ class Intel:
 
     def __init__(self):
         pass
+
+    def sample_info(self, md5=None, api_key=None, filters=None):
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not md5:
+            return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
+
+        if not filters:
+            return Result(status=INPUT_ERROR, msg="filters cannot be null or empty")
+
+        if len(filters) > 10:
+            return Result(status=INPUT_ERROR,  msg="Parameter 'filters' takes at most 10 values ({count} given).".format(count=len(filters)))
+
+        body = json.dumps(
+            {
+                "md5": md5,
+                "api_key": api_key,
+                "output_filters": filters
+            }
+        )
+
+        try:
+            r = requests.post(URL_INTEL_REPORT, data=body)
+        except Exception as e:
+            return Result(status=NETWORK_ERROR, msg="Error while connecting to Deepviz: %s" % e)
+
+        try:
+            data = json.loads(r.content)
+        except Exception as e:
+            return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
+        if r.status_code == 428:
+            return Result(status=PROCESSING, msg="Analysis is running")
+        else:
+            try:
+                data = json.loads(r.content)
+            except Exception as e:
+                return Result(status=INTERNAL_ERROR, msg="Error loading Deepviz response: %s" % e)
+
+            if r.status_code == 200:
+                return Result(status=SUCCESS, msg=data['data'])
+            else:
+                if r.status_code >= 500:
+                    return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                else:
+                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+
+    def sample_result(self, md5=None, api_key=None):
+        if not api_key:
+            return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
+
+        if not md5:
+            return Result(status=INPUT_ERROR, msg="MD5 cannot be null or empty String")
+
+        return self.sample_info(md5, api_key, ["classification"])
 
     def ip_info(self, api_key=None, ip=None, time_delta=None, history=False):
         if not api_key:

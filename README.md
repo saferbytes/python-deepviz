@@ -69,17 +69,6 @@ if result.status == SUCCESS:
         time.sleep(1)
 ```
 
-To retrieve scan result of a specific MD5
-
-```python
-from deepviz import sandbox
-sbx = sandbox.Sandbox()
-result = sbx.sample_result(md5="MD5-hash", api_key="my-api-key")
-status = result.msg['classification']['result']
-accuracy = result.msg['classification']['accuracy']
-print "STATUS: %s ACCURACY: %s" % (status, accuracy)
-```
-
 To retrieve full scan report for a specific MD5
 
 ```python
@@ -89,30 +78,28 @@ result = sbx.sample_report(md5="MD5-hash", api_key="my-api-key")
 print result
 ```
 
+# Threat Intelligence SDK API
+
+To retrieve scan result of a specific MD5
+
+```python
+from deepviz import sandbox
+sbx = sandbox.Sandbox()
+result = sbx.sample_result(md5="MD5-hash", api_key="my-api-key")
+status = result.msg['classification']['result']
+accuracy = result.msg['classification']['accuracy']
+
+print "STATUS: %s ACCURACY: %s" % (status, accuracy)
+```
+
 To retrieve only specific parts of the report of a specific MD5 scan
 
 ```python
 from deepviz import sandbox
 sbx = sandbox.Sandbox()
 result = sbx.sample_report(md5="MD5-hash", api_key="my-api-key", filters=["classification","rules"])
-
-# List of the optional filters - they can be combined together
-# "network_ip",
-# "network_ip_tcp",
-# "network_ip_udp",
-# "rules",
-# "classification",
-# "created_process",
-# "hook_user_mode",
-# "strings",
-# "created_files",
-# "hash",
-# "info",
-# "code_injection"
-
 print result
 ```
-# Threat Intelligence SDK API
 
 To retrieve intel data about one or more IPs:
 
