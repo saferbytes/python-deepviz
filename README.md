@@ -175,6 +175,8 @@ behavioral rules
 
 ```python
 from deepviz import intel, sandbox
+from deepviz.result import *
+
 API_KEY = "0000000000000000000000000000000000000000000000000000000000000000"
 ThreatIntel = intel.Intel()
 ThreatSbx = Sandbox()
