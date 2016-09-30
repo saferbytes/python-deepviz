@@ -63,24 +63,14 @@ print ">>>>>>>>>>>>>>> sample_info"
 result = ThreatIntel.sample_info(md5="a6ca3b8c79e1b7e2a6ef046b0702aeb2", api_key=API_KEY, filters=["rules", "email", "url", "filesystem"])
 print result
 
-# To retrieve intel data about  IPs in the last 7 days:
+# To retrieve intel data about an IP:
 print ">>>>>>>>>>>>>>> ip_info"
-result = ThreatIntel.ip_info(api_key=API_KEY, time_delta="7d")
+result = ThreatIntel.ip_info(api_key=API_KEY, ip="8.8.8.8", filters=["generic_info"])
 print result
 
-# To retrieve intel data about one or more IPs:
-print ">>>>>>>>>>>>>>> ip_info"
-result = ThreatIntel.ip_info(api_key=API_KEY, ip=["216.224.175.0", "216.224.175.250"])
-print result
-
-# To retrieve intel data about one or more domains:
+# To retrieve intel data about a domain:
 print ">>>>>>>>>>>>>>> domain_info"
-result = ThreatIntel.domain_info(api_key=API_KEY, domain=["google.com"])
-print result
-
-# To retrieve newly registered domains in the last 7 days:
-print ">>>>>>>>>>>>>>> domain_info"
-result = ThreatIntel.domain_info(api_key=API_KEY, time_delta="10d")
+result = ThreatIntel.domain_info(api_key=API_KEY, domain="google.com")
 print result
 
 # To run generic search based on strings
@@ -98,35 +88,3 @@ print result
 print ">>>>>>>>>>>>>>> advanced_search"
 result = ThreatIntel.advanced_search(api_key=API_KEY, ip_range="1.1.1.1-255.255.255.255", classification="M")
 print result
-
-# More advanced usage examples
-# Find all domains registered in the last 7 days, print out the malware tags related to them and
-# list all MD5 samples connecting to them. Then for each one of the samples retrieve the matched
-# behavioral rules
-
-result_domains = ThreatIntel.domain_info(api_key=API_KEY, time_delta="3d")
-if result_domains.status == SUCCESS:
-    domains = result_domains.msg
-    for domain in domains.keys():
-        result_list_samples = ThreatIntel.advanced_search(api_key=API_KEY, domain=[domain], classification="M")
-        if result_list_samples.status == SUCCESS:
-            if isinstance(result_list_samples.msg, list):
-                if len(domains[domain]['tag']):
-                    print "DOMAIN: %s ==> %s samples [TAG: %s]" % (domain, len(result_list_samples.msg), ", ".join((tag for tag in domains[domain]['tag'])))
-                else:
-                    print "DOMAIN: %s ==> %s samples" % (domain, len(result_list_samples.msg))
-
-                for sample in result_list_samples.msg:
-                    result_report = ThreatIntel.sample_info(md5=sample, api_key=API_KEY, filters=["rules"])
-                    if result_report.status == SUCCESS:
-                        print "%s => [%s]" % (sample, ", ".join([rule for rule in result_report.msg['rules']]))
-                    else:
-                        print "%s => %s" % (sample, result_report)
-                        break
-            else:
-                print "DOMAIN: %s ==> No samples found" % domain
-        else:
-            print result_list_samples
-            break
-else:
-    print result_domains

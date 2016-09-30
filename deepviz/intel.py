@@ -65,7 +65,7 @@ class Intel:
                 if r.status_code >= 500:
                     return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
                 else:
-                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                    return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
     def sample_result(self, md5=None, api_key=None):
         if not api_key:
@@ -76,38 +76,39 @@ class Intel:
 
         return self.sample_info(md5, api_key, ["classification"])
 
-    def ip_info(self, api_key=None, ip=None, time_delta=None, history=False):
+    def ip_info(self, api_key=None, ip=None, filters=None):
         if not api_key:
             return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
 
-        if (not ip and not time_delta) or (ip and time_delta):
-            msg = "Parameters missing or invalid. You must specify either a list of IPs or timestamp"
+        if not ip:
+            msg = "Parameters missing or invalid. You must specify an IP"
             return Result(status=INPUT_ERROR, msg=msg)
 
-        if history:
-            _history = "true"
-        else:
-            _history = "false"
+        if not isinstance(ip, str):
+            msg = "You must provide the IP in a string"
+            return Result(status=INPUT_ERROR, msg=msg)
 
-        if ip:
-            if not isinstance(ip, list):
-                msg = "You must provide one or more IPs in a list"
+        if filters is not None:
+            if not isinstance(filters, list):
+                msg = "You must provide one or more output filters in a list"
+                return Result(status=INPUT_ERROR, msg=msg)
+            elif not filters:
+                msg = "You must provide at least one filter"
                 return Result(status=INPUT_ERROR, msg=msg)
 
+        if filters is not None:
             body = json.dumps(
                 {
-                    "history": _history,
                     "api_key": api_key,
                     "ip": ip,
+                    "output_filters": filters
                 }
             )
-
-        if time_delta:
+        else:
             body = json.dumps(
                 {
-                    "time_delta": time_delta,
-                    "history": _history,
                     "api_key": api_key,
+                    "ip": ip,
                 }
             )
 
@@ -127,68 +128,43 @@ class Intel:
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
-    def domain_info(self, api_key=None, domain=None, time_delta=None, history=False, filters=None):
+    def domain_info(self, api_key=None, domain=None, filters=None):
         if not api_key:
             return Result(status=INPUT_ERROR, msg="API key cannot be null or empty String")
 
-        if (not domain and not time_delta) or (domain and time_delta) :
-            msg = "Parameters missing or invalid. You must specify either a list of domains or time delta"
+        if not domain:
+            msg = "Parameters missing or invalid. You must specify a domain"
+            return Result(status=INPUT_ERROR, msg=msg)
+        elif not isinstance(domain, str):
+            msg = "You must provide one a domain in a string"
             return Result(status=INPUT_ERROR, msg=msg)
 
-        if history:
-            _history = "true"
-        else:
-            _history = "false"
-
-        if filters:
+        if filters is not None:
             if not isinstance(filters, list):
                 msg = "You must provide one or more output filters in a list"
                 return Result(status=INPUT_ERROR, msg=msg)
-
-        if domain:
-            if not isinstance(domain, list):
-                msg = "You must provide one or more domains in a list"
+            elif not filters:
+                msg = "You must provide at least one filter"
                 return Result(status=INPUT_ERROR, msg=msg)
 
-            if filters:
-                body = json.dumps(
-                    {
-                        "output_filters": filters,
-                        "history": _history,
-                        "api_key": api_key,
-                        "domain": domain,
-                    }
-                )
-            else:
-                body = json.dumps(
-                    {
-                        "history": _history,
-                        "api_key": api_key,
-                        "domain": domain,
-                    }
-                )
-
-        elif time_delta:
-            if filters:
-                body = json.dumps(
-                    {
-                        "output_filters": filters,
-                        "time_delta": time_delta,
-                        "history": _history,
-                        "api_key": api_key,
-                    }
-                )
-            else:
-                body = json.dumps(
-                    {
-                        "time_delta": time_delta,
-                        "history": _history,
-                        "api_key": api_key,
-                    }
-                )
+        if filters:
+            body = json.dumps(
+                {
+                    "api_key": api_key,
+                    "domain": domain,
+                    "output_filters": filters,
+                }
+            )
+        else:
+            body = json.dumps(
+                {
+                    "api_key": api_key,
+                    "domain": domain,
+                }
+            )
 
         try:
             r = requests.post(URL_INTEL_DOMAIN, data=body)
@@ -207,7 +183,7 @@ class Intel:
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def search(self, api_key=None, search_string=None, start_offset=None, elements=None):
@@ -250,7 +226,7 @@ class Intel:
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def advanced_search(self, api_key=None, sim_hash=None, created_files=None, imp_hash=None, url=None, strings=None,
@@ -301,4 +277,4 @@ class Intel:
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))

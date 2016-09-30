@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
         name='python-deepviz',
-        version='1.2.0',
+        version='2.0.0',
         author='Saferbytes',
         author_email='info@saferbytes.it',
         url="https://github.com/saferbytes/python-deepviz",

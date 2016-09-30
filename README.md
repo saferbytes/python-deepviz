@@ -100,53 +100,25 @@ result = sbx.sample_report(md5="MD5-hash", api_key="my-api-key", filters=["class
 print result
 ```
 
-To retrieve intel data about one or more IPs:
+To retrieve intel data about an IP:
 
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.ip_info(api_key="my-api-key", ip=["1.22.28.94", "1.23.214.1"])
+result = ThreatIntel.ip_info(api_key="my-api-key", ip="8.8.8.8", filters=["generic_info"])
 print result
 ```
 
-To retrieve intel data about IPs contacted in the last 7 days:
+To retrieve intel data about one domain:
 
 ```python
 from deepviz import intel
 ThreatIntel = intel.Intel()
-result = ThreatIntel.ip_info(api_key="my-api-key", time_delta="7d")
+result = ThreatIntel.domain_info(api_key="my-api-key", domain="google.com")
 print result
 ```
 
-To retrieve intel data about one or more domains:
-
-```python
-from deepviz import intel
-ThreatIntel = intel.Intel()
-result = ThreatIntel.domain_info(api_key="my-api-key", domain=["google.com"], filters=["sub_domains"])
-
-# List of the optional filters - they can be combined together
-# "whois",
-# "sub_domains"
-
-print result
-```
-
-To retrieve newly registered domains in the last 7 days:
-
-```python
-from deepviz import intel
-ThreatIntel = intel.Intel()
-result = ThreatIntel.domain_info(api_key="my-api-key", time_delta="7d", filters=["whois"])
-
-# List of the optional filters - they can be combined together
-# "whois",
-# "sub_domains"
-
-print result
-```
-
-To run generic search based on strings 
+To run generic search based on strings
 (find all IPs, domains, samples related to the searched keyword):
 
 ```python
@@ -164,53 +136,4 @@ from deepviz import intel
 ThreatIntel = intel.Intel()
 result = ThreatIntel.advanced_search(api_key="my-api-key", domain=["justfacebook.net"], classification="M")
 print result
-```
-
-# More advanced usage examples
-
-Find all domains registered in the last 3 days, print out the malware tags related to them and
-list all MD5 samples connecting to them. Then for each one of the samples retrieve the matched
-behavioral rules
-
-```python
-from deepviz import intel, sandbox
-from deepviz.result import *
-
-API_KEY = "0000000000000000000000000000000000000000000000000000000000000000"
-ThreatIntel = intel.Intel()
-ThreatSbx = Sandbox()
-result_domains = ThreatIntel.domain_info(api_key=API_KEY, time_delta="3d")
-if result_domains.status == SUCCESS:
-    domains = result_domains.msg
-    for domain in domains.keys():
-        result_list_samples = ThreatIntel.advanced_search(api_key=API_KEY, domain=[domain], classification="M")
-        if result_list_samples.status == SUCCESS:
-            if isinstance(result_list_samples.msg, list):
-                if len(domains[domain]['tag']):
-                    print "DOMAIN: %s ==> %s samples [TAG: %s]" % (domain, len(result_list_samples.msg), ", ".join((tag for tag in domains[domain]['tag'])))
-                else:
-                    print "DOMAIN: %s ==> %s samples" % (domain, len(result_list_samples.msg))
-
-                for sample in result_list_samples.msg:
-                    result_report = ThreatSbx.sample_report(md5=sample, api_key=API_KEY, filters=["rules"])
-                    if result_report.status == SUCCESS:
-                        print "%s => [%s]" % (sample, ", ".join([rule for rule in result_report.msg['rules']]))
-                    else:
-                        print result_report
-                        break
-            else:
-                print "DOMAIN: %s ==> No samples found" % domain
-        else:
-            print result_list_samples
-            break
-else:
-    print result_domains
-```
-result:
-
-```
-DOMAIN: avsystemcare.com ==> 8 samples [TAG: trojan.qhost, trojan.rbot, trojan.noupd]
-000dde6029443950c8553469887eef9e => [badIpUrlInStrings, suspiciousSectionName, highEntropy, invalidSizeOfCode, invalidPEChecksum, writeExeSections]
-2b0a56badf6992af7bbcdfbee7aded4f => [dropExe, antiAv, recentlyRegisteredDomainStrings, autorunRegistryKey, badIpUrlInStrings, runDroppedExe, dialer, sleep, antiDebugging, invalidSizeOfCode, loadImage, runExe, invalidPEChecksum, writeExeSections]
-aba074b2373e8ea5661fdafb159c263a => [epOutOfSections, badIpUrlInStrings, invalidSizeOfCode, invalidPEChecksum, epLastSection, writeExeSections]
 ```

@@ -57,7 +57,7 @@ class Sandbox:
                 if r.status_code >= 500:
                     return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
                 else:
-                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                    return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def upload_sample(self, path=None, api_key=None):
@@ -111,7 +111,7 @@ class Sandbox:
                 if r.status_code >= 500:
                     return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
                 else:
-                    return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                    return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def upload_folder(self, path=None, api_key=None):
@@ -188,7 +188,7 @@ class Sandbox:
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def bulk_download_request(self, md5_list=None, api_key=None):
@@ -220,7 +220,7 @@ class Sandbox:
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
 
 
     def bulk_download_retrieve(self, id_request=None, path=None, api_key=None):
@@ -273,4 +273,4 @@ class Sandbox:
             if r.status_code >= 500:
                 return Result(status=SERVER_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
             else:
-                return Result(status=CLIENT_ERROR, msg="{status_code} - Error while connecting to Deepviz: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
+                return Result(status=CLIENT_ERROR, msg="{status_code} - Client error: {errmsg}".format(status_code=r.status_code, errmsg=data['errmsg']))
