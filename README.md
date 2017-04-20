@@ -83,9 +83,9 @@ print result
 To retrieve scan result of a specific MD5
 
 ```python
-from deepviz import sandbox
-sbx = sandbox.Sandbox()
-result = sbx.sample_result(md5="MD5-hash", api_key="my-api-key")
+from deepviz import intel
+ThreatIntel = intel.Intel()
+result = ThreatIntel.sample_result(md5="MD5-hash", api_key="my-api-key")
 classification = result.msg['classification']
 
 print "Classification: %s" % (classification)
@@ -94,9 +94,9 @@ print "Classification: %s" % (classification)
 To retrieve only specific parts of the report of a specific MD5 scan
 
 ```python
-from deepviz import sandbox
-sbx = sandbox.Sandbox()
-result = sbx.sample_report(md5="MD5-hash", api_key="my-api-key", filters=["classification","rules"])
+from deepviz import intel
+ThreatIntel = intel.Intel()
+result = ThreatIntel.sample_info(md5="MD5-hash", api_key="my-api-key", filters=["classification","rules"])
 print result
 ```
 
